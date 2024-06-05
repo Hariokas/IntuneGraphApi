@@ -4,6 +4,8 @@ namespace Repositories.Interfaces;
 
 public interface IGraphRepository
 {
+    Task AddDeviceToGroupAsync(string groupId, string deviceId);
+    Task RemoveDeviceFromGroupAsync(string groupId, string deviceId);
     Task<IEnumerable<Group>> GetGroupsAsync();
     Task<IEnumerable<MobileApp>> GetAppsAsync();
     Task<IEnumerable<MobileAppAssignment>> GetAppAssignmentsAsync(string appId);
