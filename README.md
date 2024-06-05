@@ -10,6 +10,8 @@ IntuneGraphApi is a .NET Core Web API project designed to interact with Microsof
 - Retrieve app assignments for a specific app.
 - Assign an app to a group.
 - Remove an app assignment from a group.
+- Add a device to a group.
+- Remove a device from a group.
 
 ## Endpoints
 
@@ -48,6 +50,18 @@ IntuneGraphApi is a .NET Core Web API project designed to interact with Microsof
 - **URL:** `DELETE /api/graph/apps/{appId}/assignments/{assignmentId}`
 - **Description:** Removes an app assignment from a specified group.
 - **Documentation:** [Microsoft Graph: Delete mobile app assignment](https://learn.microsoft.com/en-us/graph/api/intune-apps-mobileappassignment-delete?view=graph-rest-1.0)
+
+### Add Device to Group
+
+- **URL:** `POST /api/graph/groups/{groupId}/devices/{deviceId}`
+- **Description:** Adds a device to a specified group.
+- **Documentation:** [Microsoft Graph: Add member to group](https://learn.microsoft.com/en-us/graph/api/group-post-members?view=graph-rest-1.0&tabs=http)
+
+### Remove Device from Group
+
+- **URL:** `DELETE /api/graph/groups/{groupId}/devices/{deviceId}`
+- **Description:** Removes a device from a specified group.
+- **Documentation:** [Microsoft Graph: Remove member from group](https://learn.microsoft.com/en-us/graph/api/group-delete-members?view=graph-rest-1.0&tabs=http)
 
 ## Setup
 
@@ -124,6 +138,14 @@ To interact with Microsoft Graph API for Intune, you need to configure your Azur
 4. **Device Management Configuration Read Write All**:
    - **Permission Name:** `DeviceManagementConfiguration.ReadWrite.All`
    - **Description:** Allows the app to read and write Intune configuration policies and settings.
+
+5. **Group Read Write All**:
+   - **Permission Name:** `Group.ReadWrite.All`
+   - **Description:** Allows the app to read and write group memberships and properties.
+
+6. **Directory Read Write All**:
+   - **Permission Name:** `Directory.ReadWrite.All`
+   - **Description:** Allows the app to read and write directory data.
 
 ## Usage
 
