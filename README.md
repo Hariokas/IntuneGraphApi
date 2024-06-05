@@ -105,6 +105,26 @@ IntuneGraphApi is a .NET Core Web API project designed to interact with Microsof
     dotnet run --project IntuneGraphApi.Api
     ```
 
+## Required API Permissions
+
+To interact with Microsoft Graph API for Intune, you need to configure your Azure AD application with the necessary permissions. Below are the required permissions:
+
+1. **Group Read All**:
+   - **Permission Name:** `Group.Read.All`
+   - **Description:** Allows the app to read group memberships and properties without a signed-in user.
+
+2. **Device Management Apps Read Write All**:
+   - **Permission Name:** `DeviceManagementApps.ReadWrite.All`
+   - **Description:** Allows the app to read and write Intune-managed apps and their assignments.
+
+3. **Device Management Managed Devices Read Write All**:
+   - **Permission Name:** `DeviceManagementManagedDevices.ReadWrite.All`
+   - **Description:** Allows the app to read and write the properties of managed devices.
+
+4. **Device Management Configuration Read Write All**:
+   - **Permission Name:** `DeviceManagementConfiguration.ReadWrite.All`
+   - **Description:** Allows the app to read and write Intune configuration policies and settings.
+
 ## Usage
 
 You can test the API endpoints using tools like Postman or your browser. For example, to get a list of all groups, navigate to: https://localhost:5001/api/graph/groups
