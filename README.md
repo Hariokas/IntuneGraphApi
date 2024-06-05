@@ -69,19 +69,37 @@ IntuneGraphApi is a .NET Core Web API project designed to interact with Microsof
     dotnet restore
     ```
 
-4. **Update `appsettings.json` with your Azure AD and Intune details:**
+4. **Update `appsettings.json` with your Azure AD details (excluding the ClientSecret):**
 
     ```json
     {
         "GraphApi": {
             "TenantId": "YOUR_TENANT_ID",
-            "ClientId": "YOUR_CLIENT_ID",
+            "ClientId": "YOUR_CLIENT_ID"
+        }
+    }
+    ```
+
+5. **Add the ClientSecret to user secrets:**
+
+    In Visual Studio, right-click on the project in Solution Explorer and select "Manage User Secrets". Add the following to the `secrets.json` file:
+
+    ```json
+    {
+        "GraphApi": {
             "ClientSecret": "YOUR_CLIENT_SECRET"
         }
     }
     ```
 
-5. **Run the application:**
+    Alternatively, use the .NET CLI:
+
+    ```bash
+    dotnet user-secrets init
+    dotnet user-secrets set "GraphApi:ClientSecret" "YOUR_CLIENT_SECRET"
+    ```
+
+6. **Run the application:**
 
     ```bash
     dotnet run --project IntuneGraphApi.Api
