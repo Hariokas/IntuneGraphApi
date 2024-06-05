@@ -123,29 +123,136 @@ IntuneGraphApi is a .NET Core Web API project designed to interact with Microsof
 
 To interact with Microsoft Graph API for Intune, you need to configure your Azure AD application with the necessary permissions. Below are the required permissions:
 
-1. **Group Read All**:
-   - **Permission Name:** `Group.Read.All`
-   - **Description:** Allows the app to read group memberships and properties without a signed-in user.
+<details>
+<summary><b>Group Read All</b></summary>
 
-2. **Device Management Apps Read Write All**:
-   - **Permission Name:** `DeviceManagementApps.ReadWrite.All`
-   - **Description:** Allows the app to read and write Intune-managed apps and their assignments.
+**Permission Name:** `Group.Read.All`
 
-3. **Device Management Managed Devices Read Write All**:
-   - **Permission Name:** `DeviceManagementManagedDevices.ReadWrite.All`
-   - **Description:** Allows the app to read and write the properties of managed devices.
+**Description:** Allows the app to read group memberships and properties without a signed-in user.
 
-4. **Device Management Configuration Read Write All**:
-   - **Permission Name:** `DeviceManagementConfiguration.ReadWrite.All`
-   - **Description:** Allows the app to read and write Intune configuration policies and settings.
+**Why It Is Required:** This permission is necessary for the application to retrieve information about all Azure AD groups, including their memberships and properties. This functionality is essential for listing groups and their details in the application.
 
-5. **Group Read Write All**:
-   - **Permission Name:** `Group.ReadWrite.All`
-   - **Description:** Allows the app to read and write group memberships and properties.
+**What It Does:** `Group.Read.All` allows the application to:
+- Retrieve information about all groups in the directory.
+- Read the membership details of each group.
+- Access properties such as group name, description, and group members.
 
-6. **Directory Read Write All**:
-   - **Permission Name:** `Directory.ReadWrite.All`
-   - **Description:** Allows the app to read and write directory data.
+**Other Uses:**
+- Fetching all groups to display them in an administrative dashboard.
+- Auditing group memberships and properties.
+- Building custom reporting tools that involve group data.
+
+</details>
+
+<details>
+<summary><b>Device Management Apps Read Write All</b></summary>
+
+**Permission Name:** `DeviceManagementApps.ReadWrite.All`
+
+**Description:** Allows the app to read and write Intune-managed apps and their assignments.
+
+**Why It Is Required:** This permission is essential for managing Intune applications. It enables the application to list, read details, and assign/unassign apps to groups.
+
+**What It Does:** `DeviceManagementApps.ReadWrite.All` allows the application to:
+- Retrieve a list of all Intune-managed apps.
+- Read detailed information about each app.
+- Create, update, and delete app assignments to groups.
+- Manage properties and settings of the managed apps.
+
+**Other Uses:**
+- Automating the deployment of applications across the organization.
+- Managing application settings and configurations programmatically.
+- Integrating with other systems to automate workflows involving app assignments.
+
+</details>
+
+<details>
+<summary><b>Device Management Managed Devices Read Write All</b></summary>
+
+**Permission Name:** `DeviceManagementManagedDevices.ReadWrite.All`
+
+**Description:** Allows the app to read and write the properties of managed devices.
+
+**Why It Is Required:** This permission is necessary for managing the devices that are enrolled in Intune. It enables the application to read and modify device properties, which is crucial for tasks like assigning devices to groups or managing device compliance.
+
+**What It Does:** `DeviceManagementManagedDevices.ReadWrite.All` allows the application to:
+- Retrieve information about all managed devices.
+- Read and update device properties such as compliance status, device health, and configuration.
+- Perform actions on devices, like remote wipe or reboot.
+
+**Other Uses:**
+- Automating device compliance checks and remediation.
+- Integrating with monitoring tools to track device health and status.
+- Implementing custom device management solutions tailored to organizational needs.
+
+</details>
+
+<details>
+<summary><b>Device Management Configuration Read Write All</b></summary>
+
+**Permission Name:** `DeviceManagementConfiguration.ReadWrite.All`
+
+**Description:** Allows the app to read and write Intune configuration policies and settings.
+
+**Why It Is Required:** This permission is necessary for managing configuration policies in Intune. It enables the application to create, read, update, and delete policies that configure devices and apps.
+
+**What It Does:** `DeviceManagementConfiguration.ReadWrite.All` allows the application to:
+- Retrieve a list of all configuration policies.
+- Read detailed information about each policy.
+- Create, update, and delete configuration policies.
+- Manage settings related to device compliance, security, and app configurations.
+
+**Other Uses:**
+- Automating the deployment and management of configuration policies.
+- Ensuring consistent policy application across the organization.
+- Integrating with other IT management tools to provide a unified management experience.
+
+</details>
+
+<details>
+<summary><b>Group Read Write All</b></summary>
+
+**Permission Name:** `Group.ReadWrite.All`
+
+**Description:** Allows the app to read and write group memberships and properties.
+
+**Why It Is Required:** This permission is necessary for managing Azure AD groups. It enables the application to read group information and modify group memberships, which is crucial for tasks like adding or removing devices from groups.
+
+**What It Does:** `Group.ReadWrite.All` allows the application to:
+- Retrieve information about all groups.
+- Read and update group properties such as name and description.
+- Add or remove members from groups.
+- Create and delete groups.
+
+**Other Uses:**
+- Automating group membership management based on organizational roles.
+- Integrating with HR systems to sync group memberships.
+- Managing group-based access control policies programmatically.
+
+</details>
+
+<details>
+<summary><b>Directory Read Write All</b></summary>
+
+**Permission Name:** `Directory.ReadWrite.All`
+
+**Description:** Allows the app to read and write directory data.
+
+**Why It Is Required:** This permission is necessary for managing directory objects within Azure AD. It enables the application to read and modify various directory objects, such as users, groups, and devices.
+
+**What It Does:** `Directory.ReadWrite.All` allows the application to:
+- Retrieve information about directory objects, including users, groups, and devices.
+- Update properties of directory objects.
+- Create and delete directory objects.
+- Manage directory-related configurations and settings.
+
+**Other Uses:**
+- Building custom directory synchronization tools.
+- Automating the creation and management of directory objects.
+- Integrating with external identity providers or directories for unified management.
+
+</details>
+
 
 ## Usage
 
