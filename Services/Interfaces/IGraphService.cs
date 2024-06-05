@@ -4,6 +4,8 @@ namespace Services.Interfaces;
 
 public interface IGraphService
 {
+    Task AddDeviceToGroupAsync(string groupId, string deviceId);
+    Task RemoveDeviceFromGroupAsync(string groupId, string deviceId);
     Task<IEnumerable<Group>> GetGroupsAsync();
     Task<IEnumerable<MobileApp>> GetAppsAsync();
     Task<IEnumerable<MobileAppAssignment>> GetAppAssignmentsAsync(string appId);

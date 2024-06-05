@@ -10,6 +10,7 @@
 // Includes groupAssignmentTarget and allDevicesAssignmentTarget.
 
 using Microsoft.AspNetCore.Mvc;
+using Services.Implementations;
 using Services.Interfaces;
 
 namespace Api.Controllers;
@@ -18,6 +19,25 @@ namespace Api.Controllers;
 [ApiController]
 public class GraphController(IGraphService graphService) : ControllerBase
 {
+
+    // Endpoint to add a device to a group
+    // Documentation: https://learn.microsoft.com/en-us/graph/api/group-post-members?view=graph-rest-1.0&tabs=http
+    [HttpPost("groups/{groupId}/devices/{deviceId}")]
+    public async Task<IActionResult> AddDeviceToGroup(string groupId, string deviceId)
+    {
+        await graphService.AddDeviceToGroupAsync(groupId, deviceId);
+        return NoContent();
+    }
+
+    // Endpoint to remove a device from a group
+    // Documentation: https://learn.microsoft.com/en-us/graph/api/group-delete-members?view=graph-rest-1.0&tabs=http
+    [HttpDelete("groups/{groupId}/devices/{deviceId}")]
+    public async Task<IActionResult> RemoveDeviceFromGroup(string groupId, string deviceId)
+    {
+        await graphService.RemoveDeviceFromGroupAsync(groupId, deviceId);
+        return NoContent();
+    }
+
     // Endpoint to get all groups
     // https://learn.microsoft.com/en-us/graph/api/group-list?view=graph-rest-1.0
     [HttpGet("groups")]

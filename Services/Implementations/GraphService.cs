@@ -6,6 +6,16 @@ namespace Services.Implementations;
 
 public class GraphService(IGraphRepository repository) : IGraphService
 {
+    public Task AddDeviceToGroupAsync(string groupId, string deviceId)
+    {
+        return repository.AddDeviceToGroupAsync(groupId, deviceId);
+    }
+
+    public Task RemoveDeviceFromGroupAsync(string groupId, string deviceId)
+    {
+        return repository.RemoveDeviceFromGroupAsync(groupId, deviceId);
+    }
+
     public Task<IEnumerable<Group>> GetGroupsAsync()
     {
         return repository.GetGroupsAsync();
