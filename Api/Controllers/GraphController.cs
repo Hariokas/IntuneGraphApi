@@ -9,7 +9,9 @@
 // Assignment Target https://learn.microsoft.com/en-us/graph/api/resources/intune-shared-assignmenttarget?view=graph-rest-1.0
 // Includes groupAssignmentTarget and allDevicesAssignmentTarget.
 
+using Api.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Graph.Models;
 using Services.Implementations;
 using Services.Interfaces;
 
@@ -20,8 +22,27 @@ namespace Api.Controllers;
 public class GraphController(IGraphService graphService) : ControllerBase
 {
 
+    [HttpGet("devices")]
+    public async Task<IActionResult> GetDevices()
+    {
+        var devices = await graphService.GetDevicesAsync();
+        var result = devices.Select(d => new
+        {
+            d.Id,
+            d.DisplayName,
+            d.DeviceId,
+            d.OperatingSystem,
+            d.OperatingSystemVersion,
+            d.RegisteredOwners,
+            d.RegisteredUsers,
+            d.ApproximateLastSignInDateTime,
+            d.OnPremisesLastSyncDateTime
+        });
+
+        return Ok(result);
+    }
+
     // Endpoint to add a device to a group
-    // Documentation: https://learn.microsoft.com/en-us/graph/api/group-post-members?view=graph-rest-1.0&tabs=http
     [HttpPost("groups/{groupId}/devices/{deviceId}")]
     public async Task<IActionResult> AddDeviceToGroup(string groupId, string deviceId)
     {
@@ -30,7 +51,6 @@ public class GraphController(IGraphService graphService) : ControllerBase
     }
 
     // Endpoint to remove a device from a group
-    // Documentation: https://learn.microsoft.com/en-us/graph/api/group-delete-members?view=graph-rest-1.0&tabs=http
     [HttpDelete("groups/{groupId}/devices/{deviceId}")]
     public async Task<IActionResult> RemoveDeviceFromGroup(string groupId, string deviceId)
     {
@@ -38,8 +58,36 @@ public class GraphController(IGraphService graphService) : ControllerBase
         return NoContent();
     }
 
+    // Endpoint to create a group
+    [HttpPost("groups")]
+    public async Task<IActionResult> CreateGroup([FromBody] GroupCreationDto groupCreationDto)
+    {
+        var group = await graphService.CreateGroupAsync(groupCreationDto.DisplayName, groupCreationDto.MailNickname, groupCreationDto.Description);
+        return CreatedAtAction(nameof(GetGroups), new { groupId = group.Id }, group);
+    }
+
+    [HttpPost("apps/{appName}/create-groups")]
+    public async Task<IActionResult> CreateAppGroups(string appName)
+    {
+        await graphService.CreateAppGroupsAsync(appName);
+        return Ok($"Groups for {appName} created successfully.");
+    }
+
+    [HttpPost("apps/{appName}/deploy")]
+    public async Task<IActionResult> DeployApp(string appName)
+    {
+        try
+        {
+            await graphService.DeployAppToGroupAsync(appName);
+            return Ok($"{appName} deployment configured successfully.");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     // Endpoint to get all groups
-    // https://learn.microsoft.com/en-us/graph/api/group-list?view=graph-rest-1.0
     [HttpGet("groups")]
     public async Task<IActionResult> GetGroups()
     {
@@ -47,8 +95,25 @@ public class GraphController(IGraphService graphService) : ControllerBase
         return Ok(groups);
     }
 
+    [HttpGet("groups/search")]
+    public async Task<IActionResult> SearchGroupsByName([FromQuery] string namePart)
+    {
+        if (string.IsNullOrWhiteSpace(namePart))
+        {
+            return BadRequest("Name part cannot be empty.");
+        }
+
+        var groups = await graphService.SearchGroupsByNameAsync(namePart);
+        var result = groups.Select(g => new
+        {
+            g.Id,
+            g.DisplayName
+        });
+
+        return Ok(result);
+    }
+
     // Endpoint to get all apps
-    // https://learn.microsoft.com/en-us/graph/api/intune-apps-mobileapp-list?view=graph-rest-1.0
     [HttpGet("apps")]
     public async Task<IActionResult> GetApps()
     {
@@ -57,7 +122,6 @@ public class GraphController(IGraphService graphService) : ControllerBase
     }
 
     // Endpoint to get all Windows apps
-    // Win32LobApp: https://learn.microsoft.com/en-us/graph/api/resources/intune-apps-win32lobapp?view=graph-rest-1.0
     [HttpGet("apps/windows")]
     public async Task<IActionResult> GetWindowsApps()
     {
@@ -66,7 +130,6 @@ public class GraphController(IGraphService graphService) : ControllerBase
     }
 
     // Endpoint to get assignments for a specific app
-    // https://learn.microsoft.com/en-us/graph/api/intune-apps-mobileappassignment-list?view=graph-rest-1.0
     [HttpGet("apps/{appId}/assignments")]
     public async Task<IActionResult> GetAppAssignments(string appId)
     {
@@ -75,16 +138,14 @@ public class GraphController(IGraphService graphService) : ControllerBase
     }
 
     // Endpoint to assign an app to a group
-    // https://learn.microsoft.com/en-us/graph/api/intune-apps-mobileappassignment-create?view=graph-rest-1.0
     [HttpPost("apps/{appId}/assignments")]
-    public async Task<IActionResult> AssignAppToGroup(string appId, [FromBody] string groupId)
+    public async Task<IActionResult> AssignAppToGroup(string appId, [FromBody] string groupId, InstallIntent intent)
     {
-        await graphService.AssignAppToGroupAsync(appId, groupId);
+        await graphService.AssignAppToGroupAsync(appId, groupId, intent);
         return NoContent();
     }
 
     // Endpoint to remove an app assignment
-    // https://learn.microsoft.com/en-us/graph/api/intune-apps-mobileappassignment-delete?view=graph-rest-1.0
     [HttpDelete("apps/{appId}/assignments/{assignmentId}")]
     public async Task<IActionResult> RemoveAppAssignment(string appId, string assignmentId)
     {
