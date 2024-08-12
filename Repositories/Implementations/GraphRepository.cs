@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
+using Microsoft.Kiota.Serialization.Form;
 using Repositories.Interfaces;
 using GraphClientFactory = Helpers.GraphClientFactory;
 
@@ -16,6 +17,13 @@ public class GraphRepository : IGraphRepository
         var settings = config.Value;
         _graphClient = GraphClientFactory.CreateGraphClient(settings);
     }
+
+    public async Task<IEnumerable<Device>> GetDevicesAsync()
+    {
+        var devices = await _graphClient.Devices.GetAsync();
+        return devices.Value;
+    }
+
 
     public async Task AddDeviceToGroupAsync(string groupId, string deviceId)
     {
@@ -32,11 +40,65 @@ public class GraphRepository : IGraphRepository
         await _graphClient.Groups[groupId].Members[deviceId].Ref.DeleteAsync();
     }
 
+    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description)
+    {
+        var group = new Group
+        {
+            DisplayName = displayName,
+            MailNickname = mailNickname,
+            Description = description,
+            GroupTypes = new List<string> { "Unified" },
+            MailEnabled = true,
+            SecurityEnabled = false
+        };
+
+        return await _graphClient.Groups.PostAsync(group);
+    }
+
+    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description, bool mailEnabled, bool securityEnabled, List<string>? groupTypes = null)
+    {
+        var group = new Group
+        {
+            DisplayName = displayName,
+            MailNickname = mailNickname,
+            Description = description,
+            MailEnabled = mailEnabled,
+            SecurityEnabled = securityEnabled,
+            GroupTypes = groupTypes ?? []
+        };
+
+        return await _graphClient.Groups.PostAsync(group);
+    }
+
     public async Task<IEnumerable<Group>> GetGroupsAsync()
     {
         var groups = await _graphClient.Groups.GetAsync();
         return groups.Value;
     }
+
+    public async Task<string> GetGroupIdByNameAsync(string groupName)
+    {
+        var groups = await _graphClient.Groups
+            .GetAsync(config => config.QueryParameters.Filter = $"displayName eq '{groupName}'");
+
+        return groups.Value.FirstOrDefault()?.Id;
+    }
+
+    public async Task<string> GetAppIdByNameAsync(string appName)
+    {
+        var apps = await _graphClient.DeviceAppManagement.MobileApps
+            .GetAsync(config => config.QueryParameters.Filter = $"displayName eq '{appName}'");
+
+        return apps.Value.FirstOrDefault()?.Id;
+    }
+
+    public async Task<IEnumerable<Group>> SearchGroupsByNameAsync(string namePart)
+    {
+        var groups = await _graphClient.Groups.GetAsync();
+        return groups.Value.Where(g => g.DisplayName.Contains(namePart, StringComparison.OrdinalIgnoreCase));
+    }
+
+
 
     public async Task<IEnumerable<MobileApp>> GetAppsAsync()
     {
@@ -49,16 +111,45 @@ public class GraphRepository : IGraphRepository
         var assignments = await _graphClient.DeviceAppManagement.MobileApps[appId].Assignments.GetAsync();
         return assignments.Value;
     }
-
-    public async Task AssignAppToGroupAsync(string appId, string groupId)
+    
+    public async Task AssignAppToGroupAsync(string appId, string groupId, InstallIntent intent, string exclusionRule = "")
     {
+        // Create the assignment
         var assignment = new MobileAppAssignment
         {
             Target = new GroupAssignmentTarget { GroupId = groupId },
-            Intent = InstallIntent.Required
+            Intent = intent
         };
 
         await _graphClient.DeviceAppManagement.MobileApps[appId].Assignments.PostAsync(assignment);
+
+        // If exclusion rule is provided, update the group's membership rule
+        if (!string.IsNullOrEmpty(exclusionRule))
+        {
+            await UpdateGroupMembershipRuleAsync(groupId, exclusionRule);
+        }
+    }
+
+    public async Task UpdateGroupMembershipRuleAsync(string groupId, string membershipRule)
+    {
+        var group = new Group
+        {
+            MembershipRule = membershipRule,
+            MembershipRuleProcessingState = "On"
+        };
+
+        await _graphClient.Groups[groupId].PatchAsync(group);
+    }
+
+    public async Task RemoveAppFromGroupAsync(string appId, string groupId)
+    {
+        var assignments = await _graphClient.DeviceAppManagement.MobileApps[appId].Assignments
+            .GetAsync(config => config.QueryParameters.Filter = $"target/groupId eq '{groupId}'");
+
+        foreach (var assignment in assignments.Value)
+        {
+            await _graphClient.DeviceAppManagement.MobileApps[appId].Assignments[assignment.Id].DeleteAsync();
+        }
     }
 
     public async Task RemoveAppAssignmentAsync(string appId, string assignmentId)
