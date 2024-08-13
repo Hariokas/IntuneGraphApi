@@ -8,7 +8,7 @@ namespace Api.Controllers;
 [ApiController]
 public class DeviceController (IDeviceService deviceService) : ControllerBase
 {
-    [HttpGet("devices")]
+    [HttpGet()]
     public async Task<IActionResult> GetDevices()
     {
         var devices = await deviceService.GetDevicesAsync();
@@ -29,7 +29,7 @@ public class DeviceController (IDeviceService deviceService) : ControllerBase
     }
 
     // Endpoint to add a device to a group
-    [HttpPost("groups/{groupId}/devices/{deviceId}")]
+    [HttpPost("AddToGroup/{groupId}/{deviceId}")]
     public async Task<IActionResult> AddDeviceToGroup(string groupId, string deviceId)
     {
         await deviceService.AddDeviceToGroupAsync(groupId, deviceId);
@@ -37,7 +37,7 @@ public class DeviceController (IDeviceService deviceService) : ControllerBase
     }
 
     // Endpoint to remove a device from a group
-    [HttpDelete("groups/{groupId}/devices/{deviceId}")]
+    [HttpDelete("RemoveFromGroup/{groupId}/{deviceId}")]
     public async Task<IActionResult> RemoveDeviceFromGroup(string groupId, string deviceId)
     {
         await deviceService.RemoveDeviceFromGroupAsync(groupId, deviceId);

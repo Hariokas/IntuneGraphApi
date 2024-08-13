@@ -6,7 +6,7 @@ namespace Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AppsController(IAppService appService) : ControllerBase
+public class AppController(IAppService appService) : ControllerBase
 {
     // Endpoint to get all apps
     [HttpGet()]
@@ -17,7 +17,7 @@ public class AppsController(IAppService appService) : ControllerBase
     }
 
     // Endpoint to get all Windows apps
-    [HttpGet("windows")]
+    [HttpGet("Windows")]
     public async Task<IActionResult> GetWindowsApps()
     {
         var windowsApps = await appService.GetWindowsAppsAsync();
@@ -39,7 +39,7 @@ public class AppsController(IAppService appService) : ControllerBase
     }
 
     // Endpoint to get assignments for a specific app
-    [HttpGet("{appId}/assignments")]
+    [HttpGet("Assignments/{appId}")]
     public async Task<IActionResult> GetAppAssignments(string appId)
     {
         var assignments = await appService.GetAppAssignmentsAsync(appId);
@@ -47,7 +47,7 @@ public class AppsController(IAppService appService) : ControllerBase
     }
 
     // Endpoint to remove an app assignment
-    [HttpDelete("{appId}/assignments/{assignmentId}")]
+    [HttpDelete("Assignments/{assignmentId}/Remove/{appId}")]
     public async Task<IActionResult> RemoveAppAssignment(string appId, string assignmentId)
     {
         await appService.RemoveAppAssignmentAsync(appId, assignmentId);
@@ -55,10 +55,10 @@ public class AppsController(IAppService appService) : ControllerBase
     }
 
     // Endpoint to assign an app to a group
-    [HttpPost("{appId}/assignments")]
-    public async Task<IActionResult> AssignAppToGroup(string appId, [FromBody] string groupId, InstallIntent intent)
+    [HttpPost("Assignments/{assignmentId}/Add/{appId}")]
+    public async Task<IActionResult> AssignAppToGroup(string appId, string assignmentId, InstallIntent intent)
     {
-        await appService.AssignAppToGroupAsync(appId, groupId, intent);
+        await appService.AssignAppToGroupAsync(appId, assignmentId, intent);
         return NoContent();
     }
 }

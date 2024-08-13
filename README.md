@@ -68,7 +68,7 @@ IntuneGraphApi is a .NET Core Web API project designed to interact with Microsof
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/Hariokas/IntuneGraphApi.git
+    git clone https://azuredevops.danskenet.net/Main/Application%20Integration/_git/AppZone
     ```
 
 2. **Navigate to the project directory:**

@@ -8,45 +8,15 @@ namespace Api.Controllers;
 [ApiController]
 public class GroupController(IGroupService groupService) : ControllerBase
 {
-    // Endpoint to create a group
-    [HttpPost("groups")]
-    public async Task<IActionResult> CreateGroup([FromBody] GroupCreationDto groupCreationDto)
-    {
-        var group = await groupService.CreateGroupAsync(groupCreationDto.DisplayName, groupCreationDto.MailNickname,
-            groupCreationDto.Description);
-        return CreatedAtAction(nameof(GetGroups), new { groupId = group.Id }, group);
-    }
-
-    [HttpPost("apps/{appName}/create-groups")]
-    public async Task<IActionResult> CreateAppGroups(string appName)
-    {
-        await groupService.CreateAppGroupsAsync(appName);
-        return Ok($"Groups for {appName} created successfully.");
-    }
-
-    [HttpPost("apps/{appName}/deploy")]
-    public async Task<IActionResult> DeployApp(string appName)
-    {
-        try
-        {
-            await groupService.DeployAppToGroupAsync(appName);
-            return Ok($"{appName} deployment configured successfully.");
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
     // Endpoint to get all groups
-    [HttpGet("groups")]
+    [HttpGet()]
     public async Task<IActionResult> GetGroups()
     {
         var groups = await groupService.GetGroupsAsync();
         return Ok(groups);
     }
 
-    [HttpGet("groups/search")]
+    [HttpGet("{namePart}")]
     public async Task<IActionResult> SearchGroupsByName([FromQuery] string namePart)
     {
         if (string.IsNullOrWhiteSpace(namePart)) return BadRequest("Name part cannot be empty.");
@@ -61,4 +31,33 @@ public class GroupController(IGroupService groupService) : ControllerBase
         return Ok(result);
     }
 
+    // Endpoint to create a group
+    [HttpPost("Create")]
+    public async Task<IActionResult> CreateGroup([FromBody] GroupCreationDto groupCreationDto)
+    {
+        var group = await groupService.CreateGroupAsync(groupCreationDto.DisplayName, groupCreationDto.MailNickname,
+            groupCreationDto.Description);
+        return CreatedAtAction(nameof(GetGroups), new { groupId = group.Id }, group);
+    }
+
+    [HttpPost("Create/{appName}")]
+    public async Task<IActionResult> CreateAppGroups(string appName)
+    {
+        await groupService.CreateAppGroupsAsync(appName);
+        return Ok($"Groups for {appName} created successfully.");
+    }
+
+    [HttpPost("Deploy/{appName}")]
+    public async Task<IActionResult> DeployApp(string appName)
+    {
+        try
+        {
+            await groupService.DeployAppToGroupAsync(appName);
+            return Ok($"{appName} deployment configured successfully.");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }
