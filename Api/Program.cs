@@ -21,8 +21,13 @@ public class Program
         builder.Services.Configure<Configuration>(builder.Configuration.GetSection("GraphApi"));
 
         // Add dependencies
-        builder.Services.AddScoped<IGraphRepository, GraphRepository>();
-        builder.Services.AddScoped<IGraphService, GraphService>();
+        builder.Services.AddScoped<IAppRepository, AppRepository>();
+        builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+        builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+
+        builder.Services.AddScoped<IAppService, AppService>();
+        builder.Services.AddScoped<IDeviceService, DeviceService>();
+        builder.Services.AddScoped<IGroupService, GroupService>();
 
         var app = builder.Build();
 
