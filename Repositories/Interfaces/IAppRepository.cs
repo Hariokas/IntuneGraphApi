@@ -6,6 +6,8 @@ public interface IAppRepository
 {
     Task<string> GetAppIdByNameAsync(string appName);
 
+    Task<Win32LobApp> GetAppById(string appId);
+
     Task<IEnumerable<MobileApp>> GetAppsAsync();
 
     Task<IEnumerable<MobileAppAssignment>> GetAppAssignmentsAsync(string appId);

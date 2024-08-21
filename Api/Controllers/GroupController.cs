@@ -10,6 +10,7 @@ public class GroupController(IGroupService groupService) : ControllerBase
 {
     // Endpoint to get all groups
     [HttpGet()]
+    [ResponseCache(CacheProfileName = "5MinCache")]
     public async Task<IActionResult> GetGroups()
     {
         var groups = await groupService.GetGroupsAsync();
@@ -17,7 +18,8 @@ public class GroupController(IGroupService groupService) : ControllerBase
     }
 
     [HttpGet("{namePart}")]
-    public async Task<IActionResult> SearchGroupsByName([FromQuery] string namePart)
+    [ResponseCache(CacheProfileName = "5MinCache")]
+    public async Task<IActionResult> SearchGroupsByName(string namePart)
     {
         if (string.IsNullOrWhiteSpace(namePart)) return BadRequest("Name part cannot be empty.");
 

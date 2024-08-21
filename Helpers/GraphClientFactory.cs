@@ -21,7 +21,7 @@ public static class GraphClientFactory
 
     private static X509Certificate2 GetCertificateFromStore(string thumbprint)
     {
-        using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+        using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
         try
         {
             store.Open(OpenFlags.ReadOnly);

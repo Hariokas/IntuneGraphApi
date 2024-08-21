@@ -31,8 +31,8 @@ public class GroupRepository(IOptions<Configuration> config) : IGroupRepository
         var group = new Group
         {
             DisplayName = displayName,
-            MailNickname = mailNickname,
-            Description = description,
+            MailNickname = displayName.Replace(" ", ""),
+            Description = description ?? "",
             MailEnabled = mailEnabled,
             SecurityEnabled = securityEnabled,
             GroupTypes = groupTypes ?? []
@@ -43,8 +43,22 @@ public class GroupRepository(IOptions<Configuration> config) : IGroupRepository
 
     public async Task<IEnumerable<Group>> GetGroupsAsync()
     {
+        var groupList = new List<Group>();
+
         var groups = await _graphClient.Groups.GetAsync();
-        return groups.Value;
+        var nextPageLink = groups?.OdataNextLink;
+
+        groupList.AddRange(groups.Value);
+
+        while (!string.IsNullOrEmpty(nextPageLink))
+        {
+            groups = await _graphClient.Groups.WithUrl(nextPageLink).GetAsync();
+            nextPageLink = groups?.OdataNextLink;
+
+            groupList.AddRange(groups.Value);
+        }
+
+        return groupList;
     }
 
     public async Task<string> GetGroupIdByNameAsync(string groupName)
@@ -57,8 +71,16 @@ public class GroupRepository(IOptions<Configuration> config) : IGroupRepository
 
     public async Task<IEnumerable<Group>> SearchGroupsByNameAsync(string namePart)
     {
-        var groups = await _graphClient.Groups.GetAsync();
-        return groups.Value.Where(g => g.DisplayName.Contains(namePart, StringComparison.OrdinalIgnoreCase));
+        //var groups = await _graphClient.Groups.GetAsync((requestConfiguration) =>
+        //{
+        //    requestConfiguration.QueryParameters.Filter = $"startswith(displayName, '{namePart}')";
+        //});
+
+        var allGroups = await GetGroupsAsync();
+        var groups = allGroups.Where(group =>
+            group.DisplayName.Contains(namePart, StringComparison.InvariantCultureIgnoreCase));
+
+        return groups;
     }
 
     public async Task UpdateGroupMembershipRuleAsync(string groupId, string membershipRule)

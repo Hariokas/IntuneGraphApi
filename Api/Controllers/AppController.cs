@@ -30,12 +30,12 @@ public class AppController(IAppService appService) : ControllerBase
     {
         if (string.IsNullOrEmpty(appName)) return BadRequest($"{nameof(appName)} cannot be empty.");
 
-        var appId = await appService.GetAppIdByName(appName);
+        var apps = await appService.GetAppsByName(appName);
 
-        if (string.IsNullOrEmpty(appId))
+        if (!apps.Any())
             return NotFound($"\"{appName}\" query did not return any results.");
 
-        return Ok(appId);
+        return Ok(apps);
     }
 
     // Endpoint to get assignments for a specific app

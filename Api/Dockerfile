@@ -9,10 +9,14 @@ EXPOSE 8081
 FROM remote-docker-mcr.artifactory.danskenet.net/dotnet/sdk:8.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["Api/intuneapisyst.pfx". "Api/"]
 COPY ["Api/Api.csproj", "Api/"]
 COPY ["Helpers/Helpers.csproj", "Helpers/"]
 COPY ["Services/Services.csproj", "Services/"]
 COPY ["Repositories/Repositories.csproj", "Repositories/"]
+
+RUN certutil -importpfx /app/mycertificate.pfx
+
 RUN dotnet restore "./Api/Api.csproj"
 COPY . .
 WORKDIR "/src/Api"

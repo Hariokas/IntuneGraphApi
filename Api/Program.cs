@@ -1,4 +1,5 @@
 using Helpers;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Implementations;
 using Repositories.Interfaces;
 using Services.Implementations;
@@ -20,6 +21,16 @@ public class Program
         // Configure Graph API settings
         builder.Services.Configure<Configuration>(builder.Configuration.GetSection("GraphApi"));
 
+        // Add cache service
+        builder.Services.AddControllersWithViews(options =>
+        {
+            options.CacheProfiles.Add("5MinCache", new CacheProfile()
+            {
+                Duration = 300,
+                Location = ResponseCacheLocation.Any
+            });
+        });
+
         // Add dependencies
         builder.Services.AddScoped<IAppRepository, AppRepository>();
         builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
@@ -38,7 +49,8 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        app.UseCors();
+        //app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapControllers();
         app.Run();

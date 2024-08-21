@@ -16,23 +16,34 @@ public class AppService (IAppRepository appRepository) : IAppService
         return await appRepository.GetWindowsAppsAsync();
     }
 
-    public async Task<string> GetAppIdByName(string appName)
+    public async Task<IEnumerable<MobileApp>> GetAppsByName(string appName)
     {
         try
         {
-            var apps = await appRepository.GetAppsAsync();
-            var app = apps.FirstOrDefault(a => a.DisplayName.Contains(appName, StringComparison.OrdinalIgnoreCase));
-            return app?.Id ?? "";
+            var allApps = await appRepository.GetAppsAsync();
+
+            var apps = allApps.Where(a =>
+                a.DisplayName.Contains(appName, StringComparison.CurrentCultureIgnoreCase));
+
+            return apps;
         }
-        catch
+        catch (Exception ex)
         {
-            return "";
+            return [];
         }
     }
 
     public async Task<Win32LobApp> GetAppById(string appId)
     {
-        return null;
+        try
+        {
+            var app = await appRepository.GetAppById(appId);
+            return app;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<IEnumerable<MobileAppAssignment>> GetAppAssignmentsAsync(string appId)

@@ -8,7 +8,7 @@ public interface IAppService
 
     Task<IEnumerable<Win32LobApp>> GetWindowsAppsAsync();
 
-    Task<string> GetAppIdByName(string appName);
+    Task<IEnumerable<MobileApp>> GetAppsByName(string appName);
 
     Task<Win32LobApp> GetAppById(string appId);
 

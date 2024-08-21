@@ -19,6 +19,14 @@ public class AppRepository(IOptions<Configuration> config, IGroupRepository grou
         return apps.Value.FirstOrDefault()?.Id;
     }
 
+    public async Task<Win32LobApp> GetAppById(string appId)
+    {
+        var apps = await _graphClient.DeviceAppManagement.MobileApps.GetAsync();
+        var windowsApps = apps?.Value?.OfType<Win32LobApp>().ToList().FirstOrDefault(a => a.Id == appId);
+
+        return windowsApps;
+    }
+
     public async Task<IEnumerable<MobileApp>> GetAppsAsync()
     {
         var apps = await _graphClient.DeviceAppManagement.MobileApps.GetAsync();
