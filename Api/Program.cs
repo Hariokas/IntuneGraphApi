@@ -4,7 +4,6 @@ using Repositories.Implementations;
 using Repositories.Interfaces;
 using Services.Implementations;
 using Services.Interfaces;
-using GraphClientFactory = Repositories.Implementations.GraphClientFactory;
 
 namespace Api;
 

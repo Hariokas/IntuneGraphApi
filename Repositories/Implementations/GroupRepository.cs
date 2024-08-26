@@ -8,32 +8,16 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
 {
     private readonly GraphServiceClient _graphClient = graphClientFactory.CreateGraphClient();
 
-    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description)
+    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description, bool? mailEnabled = false, bool? securityEnabled = true, List<string>? groupTypes = null)
     {
         var group = new Group
         {
             DisplayName = displayName,
             MailNickname = mailNickname,
             Description = description,
-            GroupTypes = new List<string> { "Unified" },
-            MailEnabled = true,
-            SecurityEnabled = false
-        };
-
-        return await _graphClient.Groups.PostAsync(group);
-    }
-
-    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description,
-        bool mailEnabled, bool securityEnabled, List<string>? groupTypes = null)
-    {
-        var group = new Group
-        {
-            DisplayName = displayName,
-            MailNickname = displayName.Replace(" ", ""),
-            Description = description ?? "",
             MailEnabled = mailEnabled,
             SecurityEnabled = securityEnabled,
-            GroupTypes = groupTypes ?? []
+            GroupTypes = groupTypes ?? ["Unified"]
         };
 
         return await _graphClient.Groups.PostAsync(group);

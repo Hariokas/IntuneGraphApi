@@ -4,10 +4,8 @@ namespace Repositories.Interfaces;
 
 public interface IGroupRepository
 {
-    Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description);
-
-    Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description, bool mailEnabled,
-        bool securityEnabled, List<string>? groupTypes = null);
+    Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description, bool mailEnabled = false,
+        bool securityEnabled = true, List<string>? groupTypes = null);
 
     Task<IEnumerable<Group>> GetGroupsAsync();
 
