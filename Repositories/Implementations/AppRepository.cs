@@ -1,6 +1,7 @@
 ﻿using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Repositories.Interfaces;
+using Serilog;
 
 namespace Repositories.Implementations;
 
@@ -13,7 +14,7 @@ public class AppRepository(IGroupRepository groupRepository, IGraphClientFactory
         var apps = await _graphClient.DeviceAppManagement.MobileApps
             .GetAsync(config => config.QueryParameters.Filter = $"displayName eq '{appName}'");
 
-        return apps.Value.FirstOrDefault()?.Id;
+        return apps?.Value?.FirstOrDefault()?.Id ?? "";
     }
 
     public async Task<Win32LobApp> GetAppById(string appId)
@@ -21,19 +22,19 @@ public class AppRepository(IGroupRepository groupRepository, IGraphClientFactory
         var apps = await _graphClient.DeviceAppManagement.MobileApps.GetAsync();
         var windowsApps = apps?.Value?.OfType<Win32LobApp>().ToList().FirstOrDefault(a => a.Id == appId);
 
-        return windowsApps;
+        return windowsApps ?? new Win32LobApp();
     }
 
     public async Task<IEnumerable<MobileApp>> GetAppsAsync()
     {
         var apps = await _graphClient.DeviceAppManagement.MobileApps.GetAsync();
-        return apps.Value;
+        return apps?.Value ?? [];
     }
 
     public async Task<IEnumerable<MobileAppAssignment>> GetAppAssignmentsAsync(string appId)
     {
         var assignments = await _graphClient.DeviceAppManagement.MobileApps[appId].Assignments.GetAsync();
-        return assignments.Value;
+        return assignments?.Value ?? [];
     }
 
     public async Task AssignAppToGroupAsync(string appId, string groupId, InstallIntent intent, string exclusionRule = "")
@@ -59,7 +60,7 @@ public class AppRepository(IGroupRepository groupRepository, IGraphClientFactory
         var assignments = await _graphClient.DeviceAppManagement.MobileApps[appId].Assignments
             .GetAsync(config => config.QueryParameters.Filter = $"target/groupId eq '{groupId}'");
 
-        foreach (var assignment in assignments.Value)
+        foreach (var assignment in assignments?.Value ?? [])
         {
             await _graphClient.DeviceAppManagement.MobileApps[appId].Assignments[assignment.Id].DeleteAsync();
         }

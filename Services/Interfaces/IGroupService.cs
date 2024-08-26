@@ -14,6 +14,12 @@ public interface IGroupService
     Task DeployAppToGroupAsync(string appName);
     
     Task<IEnumerable<Group>> GetGroupsAsync();
-    
+
+    Task<Group> GetGroupByIdAsync(string groupId);
+
+    Task<IEnumerable<Group>> GetGroupsByIdsAsync(IEnumerable<string> groupIds);
+
+    Task<IEnumerable<Device>> GetDevicesInGroupAsync(string groupId);
+
     Task<IEnumerable<Group>> SearchGroupsByNameAsync(string namePart);
 }

@@ -3,6 +3,7 @@ using Helpers;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Repositories.Interfaces;
+using Serilog;
 
 namespace Repositories.Implementations;
 
@@ -15,8 +16,22 @@ public class GraphClientFactory(IOptions<GraphApiConfiguration> config, ICertifi
         var certThumbprint = config.Value.CertificateThumbprint;
         var cert = certService.GetCertificateFromStore(certThumbprint);
 
-        var clientCertCredential = new ClientCertificateCredential(config.Value.TenantId, config.Value.ClientId, cert);
+        if (cert != null)
+        {
+            Log.Information("Creating GraphClient using certificate");
+            var clientCertCredential = new ClientCertificateCredential(config.Value.TenantId, config.Value.ClientId, cert);
+            return new GraphServiceClient(clientCertCredential, Scopes);
+        }
 
-        return new GraphServiceClient(clientCertCredential, Scopes);
+        Log.Warning("Certificate not found, falling back to client secret.");
+        return CreateGraphClientWithClientSecret();
     }
+
+    private GraphServiceClient CreateGraphClientWithClientSecret()
+    {
+        var clientSecretCredential = new ClientSecretCredential(config.Value.TenantId, config.Value.ClientId, config.Value.ClientSecret);
+
+        return new GraphServiceClient(clientSecretCredential, Scopes);
+    }
+
 }

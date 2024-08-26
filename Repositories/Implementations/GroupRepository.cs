@@ -1,6 +1,7 @@
 ﻿using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Repositories.Interfaces;
+using Serilog;
 
 namespace Repositories.Implementations;
 
@@ -8,8 +9,10 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
 {
     private readonly GraphServiceClient _graphClient = graphClientFactory.CreateGraphClient();
 
-    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description, bool? mailEnabled = false, bool? securityEnabled = true, List<string>? groupTypes = null)
+    public async Task<Group> CreateSecurityGroupAsync(string displayName, string mailNickname, string description, bool? mailEnabled = false, bool? securityEnabled = true, List<string>? groupTypes = null)
     {
+        groupTypes ??= [];
+
         var group = new Group
         {
             DisplayName = displayName,
@@ -17,7 +20,7 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
             Description = description,
             MailEnabled = mailEnabled,
             SecurityEnabled = securityEnabled,
-            GroupTypes = groupTypes ?? ["Unified"]
+            GroupTypes = groupTypes
         };
 
         return await _graphClient.Groups.PostAsync(group);
@@ -43,6 +46,33 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
         return groupList;
     }
 
+    public async Task<Group> GetGroupByIdAsync(string groupId)
+    {
+        try
+        {
+            return await _graphClient.Groups[groupId].GetAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, $"Failed to fetch group with id: [{groupId}]");
+            return null;
+        }
+    }
+
+    public async Task<IEnumerable<Group>> GetGroupsByIdsAsync(IEnumerable<string> groupIds)
+    {
+        var groupList = new List<Group>();
+
+        foreach (var groupId in groupIds)
+        {
+            var group = await GetGroupByIdAsync(groupId);
+            if (group != null)
+                groupList.Add(group);
+        }
+
+        return groupList;
+    }
+
     public async Task<string> GetGroupIdByNameAsync(string groupName)
     {
         var groups = await _graphClient.Groups
@@ -51,18 +81,21 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
         return groups.Value.FirstOrDefault()?.Id;
     }
 
+    public async Task<IEnumerable<Device>> GetDevicesInGroupAsync(string groupId)
+    {
+        var devices = await _graphClient.Groups[groupId].Members.GetAsync();
+        return devices?.Value?.OfType<Device>() ?? [];
+    }
+
     public async Task<IEnumerable<Group>> SearchGroupsByNameAsync(string namePart)
     {
-        //var groups = await _graphClient.Groups.GetAsync((requestConfiguration) =>
-        //{
-        //    requestConfiguration.QueryParameters.Filter = $"startswith(displayName, '{namePart}')";
-        //});
+        var groups = await _graphClient.Groups
+            .GetAsync(requestConfiguration =>
+            {
+                requestConfiguration.QueryParameters.Filter = $"startswith(displayName, '{namePart}')";
+            });
 
-        var allGroups = await GetGroupsAsync();
-        var groups = allGroups.Where(group =>
-            group.DisplayName.Contains(namePart, StringComparison.InvariantCultureIgnoreCase));
-
-        return groups;
+        return groups?.Value ?? Enumerable.Empty<Group>();
     }
 
     public async Task UpdateGroupMembershipRuleAsync(string groupId, string membershipRule)

@@ -8,14 +8,14 @@ public class GroupService(IGroupRepository groupRepository, IAppRepository appRe
 {
     public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description)
     {
-        return await groupRepository.CreateGroupAsync(displayName, mailNickname, description);
+        return await groupRepository.CreateSecurityGroupAsync(displayName, mailNickname, description);
     }
 
     public async Task CreateAppGroupsAsync(string appName)
     {
-        var requiredGroup = await groupRepository.CreateGroupAsync($"{appName} - Required", $"{appName}-required", $"Group for required installation of {appName}", false, true);
-        var availableGroup = await groupRepository.CreateGroupAsync($"{appName} - Available", $"{appName}-available", $"Group for available installation of {appName}", false, true);
-        var uninstallGroup = await groupRepository.CreateGroupAsync($"{appName} - Uninstall", $"{appName}-uninstall", $"Group for uninstalling {appName}", false, true);
+        var requiredGroup = await groupRepository.CreateSecurityGroupAsync($"{appName} - Required", $"{appName}-required", $"Group for required installation of {appName}", false, true);
+        var availableGroup = await groupRepository.CreateSecurityGroupAsync($"{appName} - Available", $"{appName}-available", $"Group for available installation of {appName}", false, true);
+        var uninstallGroup = await groupRepository.CreateSecurityGroupAsync($"{appName} - Uninstall", $"{appName}-uninstall", $"Group for uninstalling {appName}", false, true);
 
         // Optionally, you can return or log the group IDs for further use.
     }
@@ -72,6 +72,21 @@ public class GroupService(IGroupRepository groupRepository, IAppRepository appRe
     public async Task<IEnumerable<Group>> GetGroupsAsync()
     {
         return await groupRepository.GetGroupsAsync();
+    }
+
+    public async Task<Group> GetGroupByIdAsync(string groupId)
+    {
+        return await groupRepository.GetGroupByIdAsync(groupId);
+    }
+
+    public async Task<IEnumerable<Group>> GetGroupsByIdsAsync(IEnumerable<string> groupIds)
+    {
+        return await groupRepository.GetGroupsByIdsAsync(groupIds);
+    }
+
+    public async Task<IEnumerable<Device>> GetDevicesInGroupAsync(string groupId)
+    {
+        return await groupRepository.GetDevicesInGroupAsync(groupId);
     }
 
     public async Task<IEnumerable<Group>> SearchGroupsByNameAsync(string namePart)

@@ -17,6 +17,14 @@ public class GroupController(IGroupService groupService) : ControllerBase
         return Ok(groups);
     }
 
+    [HttpGet("Id/{groupId}")]
+    //[ResponseCache(CacheProfileName = "5MinCache")]
+    public async Task<IActionResult> GetGroupById(string groupId)
+    {
+        var group = await groupService.GetGroupByIdAsync(groupId);
+        return Ok(group);
+    }
+
     [HttpGet("{namePart}")]
     [ResponseCache(CacheProfileName = "5MinCache")]
     public async Task<IActionResult> SearchGroupsByName(string namePart)
