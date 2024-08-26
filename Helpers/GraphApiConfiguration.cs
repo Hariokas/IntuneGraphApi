@@ -1,6 +1,6 @@
 ﻿namespace Helpers;
 
-public class Configuration
+public class GraphApiConfiguration
 {
     public string TenantId { get; set; }
     public string ClientId { get; set; }

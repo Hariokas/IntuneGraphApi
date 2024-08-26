@@ -4,6 +4,7 @@ using Repositories.Implementations;
 using Repositories.Interfaces;
 using Services.Implementations;
 using Services.Interfaces;
+using GraphClientFactory = Repositories.Implementations.GraphClientFactory;
 
 namespace Api;
 
@@ -19,7 +20,7 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         // Configure Graph API settings
-        builder.Services.Configure<Configuration>(builder.Configuration.GetSection("GraphApi"));
+        builder.Services.Configure<GraphApiConfiguration>(builder.Configuration.GetSection("GraphApi"));
 
         // Add cache service
         builder.Services.AddControllersWithViews(options =>
@@ -32,6 +33,9 @@ public class Program
         });
 
         // Add dependencies
+        builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
+        builder.Services.AddScoped<IGraphClientFactory, GraphClientFactory>();
+
         builder.Services.AddScoped<IAppRepository, AppRepository>();
         builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
         builder.Services.AddScoped<IGroupRepository, GroupRepository>();

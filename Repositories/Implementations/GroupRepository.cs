@@ -1,15 +1,12 @@
-﻿using Helpers;
-using Microsoft.Extensions.Options;
-using Microsoft.Graph;
+﻿using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Repositories.Interfaces;
-using GraphClientFactory = Helpers.GraphClientFactory;
 
 namespace Repositories.Implementations;
 
-public class GroupRepository(IOptions<Configuration> config) : IGroupRepository
+public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRepository
 {
-    private readonly GraphServiceClient _graphClient = GraphClientFactory.CreateGraphClient(config.Value);
+    private readonly GraphServiceClient _graphClient = graphClientFactory.CreateGraphClient();
 
     public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description)
     {
@@ -26,7 +23,8 @@ public class GroupRepository(IOptions<Configuration> config) : IGroupRepository
         return await _graphClient.Groups.PostAsync(group);
     }
 
-    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description, bool mailEnabled, bool securityEnabled, List<string>? groupTypes = null)
+    public async Task<Group> CreateGroupAsync(string displayName, string mailNickname, string description,
+        bool mailEnabled, bool securityEnabled, List<string>? groupTypes = null)
     {
         var group = new Group
         {

@@ -1,15 +1,12 @@
-﻿using Helpers;
-using Microsoft.Extensions.Options;
-using Microsoft.Graph;
+﻿using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Repositories.Interfaces;
-using GraphClientFactory = Helpers.GraphClientFactory;
 
 namespace Repositories.Implementations;
 
-public class AppRepository(IOptions<Configuration> config, IGroupRepository groupRepository) : IAppRepository
+public class AppRepository(IGroupRepository groupRepository, IGraphClientFactory graphClientFactory) : IAppRepository
 {
-    private readonly GraphServiceClient _graphClient = GraphClientFactory.CreateGraphClient(config.Value);
+    private readonly GraphServiceClient _graphClient = graphClientFactory.CreateGraphClient();
 
     public async Task<string> GetAppIdByNameAsync(string appName)
     {
