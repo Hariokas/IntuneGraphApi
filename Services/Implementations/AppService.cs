@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graph.Models;
 using Repositories.Interfaces;
+using Serilog;
 using Services.Interfaces;
 
 namespace Services.Implementations;
@@ -20,15 +21,17 @@ public class AppService (IAppRepository appRepository) : IAppService
     {
         try
         {
-            var allApps = await appRepository.GetAppsAsync();
+            var apps = await appRepository.GetAppsByNameAsync(appName);
+            //var allApps = await appRepository.GetAppsAsync();
 
-            var apps = allApps.Where(a =>
-                a.DisplayName.Contains(appName, StringComparison.CurrentCultureIgnoreCase));
+            //var apps = allApps.Where(a =>
+            //    a.DisplayName.Contains(appName, StringComparison.CurrentCultureIgnoreCase));
 
             return apps;
         }
         catch (Exception ex)
         {
+            Log.Error(ex, $"An error occured at {nameof(GetAppsByName)}");
             return [];
         }
     }

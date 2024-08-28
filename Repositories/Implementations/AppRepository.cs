@@ -17,6 +17,16 @@ public class AppRepository(IGroupRepository groupRepository, IGraphClientFactory
         return apps?.Value?.FirstOrDefault()?.Id ?? "";
     }
 
+    public async Task<IEnumerable<MobileApp>> GetAppsByNameAsync(string appName)
+    {
+        var apps = await _graphClient.DeviceAppManagement.MobileApps.GetAsync(config =>
+        {
+            config.QueryParameters.Filter = $"contains(tolower(displayName), tolower('{appName}'))";
+        });
+
+        return apps?.Value ?? Enumerable.Empty<MobileApp>();
+    }
+
     public async Task<Win32LobApp> GetAppById(string appId)
     {
         var apps = await _graphClient.DeviceAppManagement.MobileApps.GetAsync();

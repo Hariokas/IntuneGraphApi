@@ -26,7 +26,7 @@ public class GroupController(IGroupService groupService) : ControllerBase
     }
 
     [HttpGet("{namePart}")]
-    [ResponseCache(CacheProfileName = "5MinCache")]
+    //[ResponseCache(CacheProfileName = "5MinCache")]
     public async Task<IActionResult> SearchGroupsByName(string namePart)
     {
         if (string.IsNullOrWhiteSpace(namePart)) return BadRequest("Name part cannot be empty.");

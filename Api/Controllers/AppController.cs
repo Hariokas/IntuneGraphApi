@@ -46,8 +46,8 @@ public class AppController(IAppService appService, IGroupService groupService) :
     }
 
     // Endpoint to find AppID by its name
-    [HttpGet("{appName}")]
-    public async Task<IActionResult> GetAppIdByName(string appName)
+    [HttpGet("SearchByName/{appName}")]
+    public async Task<IActionResult> GetAppByName(string appName)
     {
         if (string.IsNullOrEmpty(appName))
         {
@@ -76,25 +76,38 @@ public class AppController(IAppService appService, IGroupService groupService) :
         }
     }
 
-    // Endpoint to get assignments for a specific app
-    [HttpGet("Assignments/{appId}")]
-    public async Task<IActionResult> GetAppAssignments(string appId)
+    // Endpoint to find App by AppID
+    [HttpGet("SearchById/{appId}")]
+    public async Task<IActionResult> GetAppById(string appId)
     {
+        if (string.IsNullOrEmpty(appId))
+        {
+            Log.Warning("SearchById called with an empty AppID");
+            return BadRequest($"{nameof(appId)} cannot be empty.");
+        }
+
         try
         {
-            Log.Information($"Fetching assignments for appId: {appId}.");
-            var assignments = await appService.GetAppAssignmentsAsync(appId);
-            Log.Information($"Successfully fetched {assignments.Count()} assignments for appId: {appId}.");
-            return Ok(assignments);
+            Log.Information($"Fetching app with ID: {appId}");
+            var app = await appService.GetAppById(appId);
+
+            if (app == null)
+            {
+                Log.Information($"No app found with ID: {appId}");
+                return NotFound($"\"{appId}\" query did not return any results");
+            }
+
+            Log.Information($"Found app with ID [{appId}]");
+            return Ok(app);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, $"Error occurred while fetching assignments for appId: {appId}.");
-            return StatusCode(500, "An error occurred while fetching app assignments.");
+            Log.Error(ex, $"Error occured while fetching app by ID: {appId}");
+            return StatusCode(500, "An error occurred while fetching app by ID");
         }
     }
 
-    [HttpGet("{appId}/DeploymentGroups")]
+    [HttpGet("DeploymentGroups/{appId}")]
     public async Task<IActionResult> GetAppDeploymentGroups(string appId)
     {
         try
@@ -119,23 +132,21 @@ public class AppController(IAppService appService, IGroupService groupService) :
         }
     }
 
-    // Endpoint to remove an app assignment
-    [HttpDelete("Assignments/{assignmentId}/Remove/{appId}")]
-    public async Task<IActionResult> RemoveAppAssignment(string appId, string assignmentId)
+    // Endpoint to get assignments for a specific app
+    [HttpGet("Assignments/{appId}")]
+    public async Task<IActionResult> GetAppAssignments(string appId)
     {
         try
         {
-            Log.Information($"Removing assignment with assignmentId: {assignmentId} for appId: {appId}.");
-            await appService.RemoveAppAssignmentAsync(appId, assignmentId);
-
-            Log.Information($"Successfully removed assignment with assignmentId: {assignmentId} for appId: {appId}.");
-            return NoContent();
+            Log.Information($"Fetching assignments for appId: {appId}.");
+            var assignments = await appService.GetAppAssignmentsAsync(appId);
+            Log.Information($"Successfully fetched {assignments.Count()} assignments for appId: {appId}.");
+            return Ok(assignments);
         }
         catch (Exception ex)
         {
-            Log.Error(ex,
-                $"Error occurred while removing assignment with assignmentId: {assignmentId} for appId: {appId}.");
-            return StatusCode(500, "An error occurred while removing app assignment.");
+            Log.Error(ex, $"Error occurred while fetching assignments for appId: {appId}.");
+            return StatusCode(500, "An error occurred while fetching app assignments.");
         }
     }
 
@@ -156,6 +167,26 @@ public class AppController(IAppService appService, IGroupService groupService) :
         {
             Log.Error(ex, $"Error occurred while assigning appId: {appId} to group with assignmentId: {assignmentId}.");
             return StatusCode(500, "An error occurred while assigning the app to a group.");
+        }
+    }
+
+    // Endpoint to remove an app assignment
+    [HttpDelete("Assignments/{assignmentId}/Remove/{appId}")]
+    public async Task<IActionResult> RemoveAppAssignment(string appId, string assignmentId)
+    {
+        try
+        {
+            Log.Information($"Removing assignment with assignmentId: {assignmentId} for appId: {appId}.");
+            await appService.RemoveAppAssignmentAsync(appId, assignmentId);
+
+            Log.Information($"Successfully removed assignment with assignmentId: {assignmentId} for appId: {appId}.");
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex,
+                $"Error occurred while removing assignment with assignmentId: {assignmentId} for appId: {appId}.");
+            return StatusCode(500, "An error occurred while removing app assignment.");
         }
     }
 }

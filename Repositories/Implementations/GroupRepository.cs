@@ -9,7 +9,8 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
 {
     private readonly GraphServiceClient _graphClient = graphClientFactory.CreateGraphClient();
 
-    public async Task<Group> CreateSecurityGroupAsync(string displayName, string mailNickname, string description, bool? mailEnabled = false, bool? securityEnabled = true, List<string>? groupTypes = null)
+    public async Task<Group> CreateSecurityGroupAsync(string displayName, string mailNickname, string description,
+        bool? mailEnabled = false, bool? securityEnabled = true, List<string>? groupTypes = null)
     {
         groupTypes ??= [];
 
@@ -76,7 +77,10 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
     public async Task<string> GetGroupIdByNameAsync(string groupName)
     {
         var groups = await _graphClient.Groups
-            .GetAsync(config => config.QueryParameters.Filter = $"displayName eq '{groupName}'");
+            .GetAsync(config =>
+            {
+                config.QueryParameters.Filter = $"displayName eq '{groupName}'";
+            });
 
         return groups.Value.FirstOrDefault()?.Id;
     }
@@ -92,7 +96,7 @@ public class GroupRepository(IGraphClientFactory graphClientFactory) : IGroupRep
         var groups = await _graphClient.Groups
             .GetAsync(requestConfiguration =>
             {
-                requestConfiguration.QueryParameters.Filter = $"startswith(displayName, '{namePart}')";
+                requestConfiguration.QueryParameters.Filter = $"startsWith(displayName, '{namePart}')";
             });
 
         return groups?.Value ?? Enumerable.Empty<Group>();
