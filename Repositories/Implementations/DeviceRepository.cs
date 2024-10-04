@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graph;
+using Microsoft.Graph.Devices.Item.GetMemberGroups;
 using Microsoft.Graph.Models;
 using Repositories.Interfaces;
 
@@ -11,7 +12,7 @@ public class DeviceRepository(IGraphClientFactory graphClientFactory) : IDeviceR
     public async Task<IEnumerable<Device>> GetDevicesAsync()
     {
         var devices = await _graphClient.Devices.GetAsync();
-        return devices.Value;
+        return devices?.Value ?? Enumerable.Empty<Device>();
     }
 
     public async Task AddDeviceToGroupAsync(string groupId, string deviceId)
@@ -28,4 +29,24 @@ public class DeviceRepository(IGraphClientFactory graphClientFactory) : IDeviceR
     {
         await _graphClient.Groups[groupId].Members[deviceId].Ref.DeleteAsync();
     }
+
+    public async Task<IEnumerable<Device>> SearchDevicesByNameAsync(string deviceName)
+    {
+        var devices = await _graphClient.Devices
+            .GetAsync(requestConfiguration =>
+            {
+                requestConfiguration.QueryParameters.Filter = $"startsWith(displayName, '{deviceName}')";
+            });
+
+        return devices?.Value ?? Enumerable.Empty<Device>();
+    }
+
+    public async Task<IEnumerable<string>> GetDeviceGroupIdsAsync(string deviceId)
+    {
+        var requestBody = new GetMemberGroupsPostRequestBody { SecurityEnabledOnly = false };
+        var groupIds = await _graphClient.Devices[deviceId].GetMemberGroups.PostAsGetMemberGroupsPostResponseAsync(requestBody);
+
+        return groupIds?.Value ?? Enumerable.Empty<string>();
+    }
+
 }

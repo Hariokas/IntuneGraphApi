@@ -21,4 +21,6 @@ public interface IAppRepository
 
     Task<IEnumerable<Win32LobApp>> GetWindowsAppsAsync();
 
+    Task<IEnumerable<MobileApp>> GetAppsAssignedToGroupsAsync(IEnumerable<string> groupIds);
+
 }
