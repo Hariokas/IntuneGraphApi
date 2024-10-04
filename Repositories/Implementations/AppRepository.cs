@@ -87,4 +87,27 @@ public class AppRepository(IGroupRepository groupRepository, IGraphClientFactory
         var windowsApps = apps.Value.OfType<Win32LobApp>().ToList();
         return windowsApps;
     }
+
+    public async Task<IEnumerable<MobileApp>> GetAppsAssignedToGroupsAsync(IEnumerable<string> groupIds)
+    {
+        var allApps = new List<MobileApp>();
+
+        var apps = await _graphClient.DeviceAppManagement.MobileApps.GetAsync();
+        var mobileApps = apps?.Value ?? Enumerable.Empty<MobileApp>();
+
+        foreach (var app in mobileApps)
+        {
+            var assignments = await _graphClient.DeviceAppManagement.MobileApps[app.Id].Assignments.GetAsync();
+
+            var isAssigned = assignments?.Value?.Any(a =>
+            a.Target is GroupAssignmentTarget groupTarget &&
+            groupIds.Contains(groupTarget.GroupId)) ?? false;
+
+            if (isAssigned)
+                allApps.Add(app);
+        }
+
+        return allApps;
+    }
+
 }

@@ -9,4 +9,8 @@ public interface IDeviceRepository
     Task AddDeviceToGroupAsync(string groupId, string deviceId);
     
     Task RemoveDeviceFromGroupAsync(string groupId, string deviceId);
+
+    Task<IEnumerable<Device>> SearchDevicesByNameAsync(string deviceName);
+
+    Task<IEnumerable<string>> GetDeviceGroupIdsAsync(string deviceId);
 }
